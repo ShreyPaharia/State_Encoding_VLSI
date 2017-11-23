@@ -10,27 +10,27 @@ class state_sequencer:
 		self.noInputs = noInputs
 		self.noOutputs = noOutputs
 		self.sequence = sequence
+		self.nextStateSequence = [[0]*self.noStates]*self.noStates
+		self.outputSequence = [[0]*self.noOutputs]*self.noStates
 
 	def sequence_matrix(self):
 		
-		nextStateSequence = [[0]*noStates]*noStates
-		outputSequence = [[0]*noOutputs]*noStates
-		
-		for i in range(noStates):
+		for i in range(self.noStates):
 			for state in self.sequence[i]:
-				nextStateSequence[i][state[0]]+=1
-				for j in range(noOutputs):
-					outputSequence[i][j]+=state[2][j]
+				self.nextStateSequence[i][state[0]]+=1
+				for j in range(self.noOutputs):
+					self.outputSequence[i][j]+=state[2][j]
 
-		return nextStateSequence,outputSequence
 
-	def attraction_matrix(nextStateSequence,outputSequence,noBits):
-		nextStateSequence_np = np.array(nextStateSequence)
-		outputSequence_np = np.array(outputSequence)
+		return self.nextStateSequence,self.outputSequence
 
-		attraction_matrix = noBits*np.matmul(nextStateSequence_np,nextStateSequence_np.T) + np.matmul(outputSequence_np,outputSequence_np.T)
+	def attraction_matrix(self):
+		nextStateSequence_np = np.array(self.nextStateSequence)
+		outputSequence_np = np.array(self.outputSequence)
 
-		return attraction_matrix
+		self.attraction_matrix = self.noBits*np.matmul(nextStateSequence_np,nextStateSequence_np.T) + np.matmul(outputSequence_np,outputSequence_np.T)
+
+		return self.attraction_matrix
 
 
 class state:
@@ -39,9 +39,26 @@ class state:
 		self.state = [nextState,inputs,outputs]
 
 
-
+h = state()
 
 def state_assignment():
+	visited_states = []
+
+	max_attraction_states,attraction_sort = max_attraction(noBits,attraction_matrix)
+
+	for state in attraction_sort:
+		
+		if len(visited_states) == noStates:
+			break
+
+		if state not in visited_states:
+			visited_states.append(state)
+			#assign the state something
+			for nextState in max_attraction_states[state]:
+				if next_state not in visited_states:
+					visited_states.append(next_state)
+					#assign the next_states something
+
 
 
 
@@ -64,3 +81,4 @@ def max_attraction(noBits,attraction_matrix):
 
 		
 #sequence would be of the form S1-> an array of states to show the connection in the finite state machine
+#thus a list of list of next states corresponding to the indices representing the states
