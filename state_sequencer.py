@@ -1,5 +1,17 @@
 import math
 import numpy as np
+import itertools
+
+
+def graycode(state):
+	nextstates = []
+	for i in range(len(state)):
+		a = list(state)
+		a[i] = not (a[i])
+		nextstates.append(tuple(a))
+	#print (nextstates)
+	return nextstates
+
 
 class state_sequencer:
 
@@ -59,6 +71,43 @@ class state_sequencer:
 		self.attraction_sort = np.argsort(-np.array(attraction_total))
 		return self.max_attraction_states,self.attraction_sort
 
+	def state_assignment(self):  #no idea might need to alter
+		encoding_list = list(itertools.product([False, True], repeat=int(self.noBits)))
+		encoded_states = []
+		assigned_states = [0]*self.noStates
+		visited_states = []
+
+		#max_attraction_states,attraction_sort = state_seq.max_attraction()
+
+		for state in self.attraction_sort:
+			#gray_list= graycode(state)
+			if len(visited_states) == self.noStates:
+				break
+
+			if state not in visited_states:
+				visited_states.append(state)
+				#assign the state something
+				for st in encoding_list:
+					if (st not in encoded_states):
+						encoded_states.append(st)
+						assigned_states[state] = st
+						break
+	 
+			for nextState in self.max_attraction_states[state]:
+				if nextState not in visited_states:
+					gray_list = graycode(assigned_states[state]) 
+						#assign the next_states something
+					#print(gray_list)
+					for st in gray_list:
+						if (st not in encoded_states):
+							encoded_states.append(st)
+							assigned_states[nextState] = st
+							visited_states.append(nextState)
+							break
+
+		return assigned_states
+
+
 
 class state:
 
@@ -67,23 +116,6 @@ class state:
 
 
 
-def state_assignment():
-	visited_states = []
-
-	max_attraction_states,attraction_sort = max_attraction(noBits,attraction_matrix)
-
-	for state in attraction_sort:
-		
-		if len(visited_states) == noStates:
-			break
-
-		if state not in visited_states:
-			visited_states.append(state)
-			#assign the state something
-			for nextState in max_attraction_states[state]:
-				if next_state not in visited_states:
-					visited_states.append(next_state)
-					#assign the next_states something
 
 
 
@@ -100,6 +132,8 @@ print(attraction_matrix_try)
 max_attraction_states_try,attraction_sort_try = state_seq1.max_attraction()
 print(max_attraction_states_try)
 print(attraction_sort_try)
+state_assignment_try = state_seq1.state_assignment()
+print(state_assignment_try)
 		
 #sequence would be of the form S1-> an array of states to show the connection in the finite state machine
 #thus a list of list of next states corresponding to the indices representing the states
