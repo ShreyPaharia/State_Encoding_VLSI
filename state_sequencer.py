@@ -25,6 +25,7 @@ class state_sequencer:
 		self.noOutputs = noOutputs
 		self.sequence = sequence
 
+		#Initialising the following matrices as numpy zeros matrices
 		#This matrix is such that present state represents rows and next state represents column - the entries are the number of inputs for which the present state goes to next state
 		self.nextStateSequence = np.zeros((self.noStates,self.noStates))
 
@@ -39,12 +40,13 @@ class state_sequencer:
 		
 		for i in range(self.noStates):
 			for state in self.sequence[i]:
-				input_deci = 0
+
 				self.nextStateSequence[i][state[0]]+=1
 				
 				for j in range(self.noOutputs):
 					self.outputSequence[i][j]+=state[2][j]
 
+				input_deci = 0 # variable to convert a binary number in the form of tuple into decimal number for input sequence matrix 
 				for j in range(self.noInputs):
 					input_deci+= state[1][j]*math.pow(2,self.noInputs-j-1)
 				self.inputSequence[state[0]][int(input_deci)]+=1
@@ -53,9 +55,9 @@ class state_sequencer:
 
 	def attraction_matrix(self): #Func to find out the attraction matrix for FANIN and FANOUT algorithms
 
+		# The attraction matrix is = (number of bits)*nextStateSequence*(Transpose of nextStateSequence) for fanout and (number of bits)*(Transpose of nextStateSequence)*nextStateSequence for fanin 
 		attraction_matrix_fanout = self.noBits*np.matmul(self.nextStateSequence,self.nextStateSequence.T) + np.matmul(self.outputSequence,self.outputSequence.T)
-		attraction_matrix_fanin = self.noBits*np.matmul(self.nextStateSequence,self.nextStateSequence.T) + np.matmul(self.inputSequence,self.inputSequence.T)
-
+		attraction_matrix_fanin = self.noBits*np.matmul(self.nextStateSequence.T,self.nextStateSequence) + np.matmul(self.inputSequence,self.inputSequence.T)
 
 		return attraction_matrix_fanout,attraction_matrix_fanin
 
@@ -68,18 +70,22 @@ class state_sequencer:
 		i=0
 	
 		for state_attraction in attraction_matrix:
+			# argpartition is used to get the n+1 states(state number) from attraction matrix having maximum attraction using max heap sort 
 			ind = np.argpartition(state_attraction,-(self.noBits+1))[-(self.noBits+1):]
-			
+			# argsort is used to order the indices in decreasing order of attraction. The whole process has a complexity of log(n)+klog(k) -- n = total number and k = number required
 			attraction_states = ind[np.argsort(-state_attraction[ind])]	
 			
+			#the below if condition is used to ensure that the same state is not in the list of maximum attracted states corresponding to it
 			if i in attraction_states:	
 				index_1 = np.argwhere(attraction_states == i)
 				attraction_states = np.delete(attraction_states, index_1)
 			i=i+1	
-			
 			attraction_state_n = attraction_states[:self.noBits]
+
+			#appending the sorted rows in a common list 
 			max_attraction_states.append(attraction_state_n)
 
+			#find the sum of attraction of the n most attracted states and then sorting them according to the sum using argsort function
 			total = 0
 			for index in attraction_state_n:
 				total += state_attraction[index]
@@ -87,6 +93,7 @@ class state_sequencer:
 			attraction_total.append(total)
 
 		attraction_sort = np.argsort(-np.array(attraction_total))
+
 		return max_attraction_states,attraction_sort
 
 	def state_assignment(self,max_attraction_states,attraction_sort):  #no idea might need to alter
@@ -127,7 +134,7 @@ class state_sequencer:
 
 
 
-
+# Each instance of state class has a single variable => state represented by a tuple of NextState - integer, inputs - tuple of binary inputs, outputs - tuple of binary outputs
 class state:
 
 	def __init__(self , nextState, inputs, outputs):
@@ -137,8 +144,12 @@ class state:
 
 
 def print_state_assignment(state_assignment):
+
+	#encoding_print used to store the list of encodings for each state
 	encoding_print = []
+
 	for encoding in state_assignment:
+		#used to append either 1 or 0 according to the boolean values in encoding
 		encoding_print_element =''
 		for bit in encoding:
 			if(bit):
@@ -154,9 +165,15 @@ def print_state_assignment(state_assignment):
 
 
 
+# each sequence has a list of states with a list of state class object corresponding to them
 
-state_seq=[[[1,(0,0),(0,0)],[2,(1,0),(1,1)]],[[1,(1,0),(0,1)],[2,(0,1),(1,0)]],[[0,(1,1),(0,0)]]]
-state_seq1=state_sequencer(3,2,2,state_seq)
+#state_seq=[[[1,(0,0),(0,0)],[2,(1,0),(1,1)]],[[1,(1,0),(0,1)],[2,(0,1),(1,0)]],[[0,(1,1),(0,0)]]]
+
+#Example number-9 page 365 H.L. Somanji
+state_seq=[[[0,(0,0),(1,)],[0,(0,1),(1,)],[4,(1,1),(0,)],[1,(1,0),(1,)]],[[0,(0,0),(1,)],[3,(0,1),(0,)],[2,(1,1),(0,)],[2,(1,0),(0,)]],[[2,(0,0),(1,)],[3,(0,1),(0,)],[3,(1,1),(0,)],[3,(1,0),(0,)]],[[0,(0,0),(0,)],[4,(0,1),(0,)],[4,(1,1),(0,)],[0,(1,0),(0,)]],[[2,(0,0),(1,)],[4,(0,1),(0,)],[4,(1,1),(0,)],[0,(1,0),(0,)]]]
+
+# An instance of a state_sequencer class using the constructor defined above
+state_seq1=state_sequencer(5,2,1,state_seq)
 
 nextStateSequence_try,outputSequence_try,inputSequence_try =state_seq1.sequence_matrix()
 
@@ -181,8 +198,11 @@ print("\n")
 
 max_attraction_states_try,attraction_sort_try = state_seq1.max_attraction(attraction_matrix_fanout_try)
 
+print("STATES SORTED ACCORDING TO ATTRACTION OF N MOST ATTRACTED STATES")
 #print(max_attraction_states_try)
-#print(attraction_sort_try)
+print(attraction_sort_try)
+print("\n")
+
 
 state_assignment_try = state_seq1.state_assignment(max_attraction_states_try,attraction_sort_try)
 print("STATE_ASSIGNMENT")
@@ -196,8 +216,10 @@ print(attraction_matrix_fanin_try)
 print("\n")
 
 max_attraction_states_try,attraction_sort_try = state_seq1.max_attraction(attraction_matrix_fanin_try)
+print("STATES SORTED ACCORDING TO ATTRACTION OF N MOST ATTRACTED STATES")
 #print(max_attraction_states_try)
-#print(attraction_sort_try)
+print(attraction_sort_try)
+print("\n")
 
 state_assignment_try = state_seq1.state_assignment(max_attraction_states_try,attraction_sort_try)
 print("STATE_ASSIGNMENT")
