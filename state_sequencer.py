@@ -3,13 +3,12 @@ import numpy as np
 import itertools
 
 
-def graycode(state):
+def graycode(state):                # Returns a list of encodings that differ at one bit from the given encoding (gray code)
 	nextstates = []
 	for i in range(len(state)):
 		a = list(state)
-		a[i] = not (a[i])
+		a[i] = not (a[i])           #complementing one bit a time
 		nextstates.append(tuple(a))
-	#print (nextstates)
 	return nextstates
 
 
@@ -90,40 +89,37 @@ class state_sequencer:
 		return max_attraction_states,attraction_sort
 
 	def state_assignment(self,max_attraction_states,attraction_sort):  #no idea might need to alter
-		encoding_list = list(itertools.product([False, True], repeat=int(self.noBits)))
-		encoded_states = []
-		assigned_states = [0]*self.noStates
-		visited_states = []
+		encoding_list = list(itertools.product([False, True], repeat=int(self.noBits))) #Generates all possible encodings of noBits , e.g. ((0,0),(0,1),(1,0),(1,1)) for noBits = 2
+		encoded_states = []                                                             #List of encodins which are used
+		assigned_states = [0]*self.noStates												#Final list of encoding, index be the state that is encoded 					
+		visited_states = []																#List of States that are being encoded				
 
-		#max_attraction_states,attraction_sort = state_seq.max_attraction()
-
-		for state in attraction_sort:
-			#gray_list= graycode(state)
-			if len(visited_states) == self.noStates:
+		for state in attraction_sort:                                                   
+			
+			if len(visited_states) == self.noStates:						# Break out of the loop if all states are visited
 				break
 
-			if state not in visited_states:
+			if state not in visited_states:									#If state not in visited state, append it to the list 
 				visited_states.append(state)
 				#assign the state something
-				for st in encoding_list:
-					if (st not in encoded_states):
-						encoded_states.append(st)
-						assigned_states[state] = st
+				for st in encoding_list:									#Chose a state encoding from the encoding_list
+					if (st not in encoded_states):							#If that state encoding is not used then 
+						encoded_states.append(st)                           #add it to encoded_state list
+						assigned_states[state] = st                         #add it to assigned state final list
 						break
 	 
-			for nextState in max_attraction_states[state]:
-				if nextState not in visited_states:
-					gray_list = graycode(assigned_states[state]) 
-						#assign the next_states something
-					#print(gray_list)
-					for st in gray_list:
-						if (st not in encoded_states):
+			for nextState in max_attraction_states[state]:					#now we will move on to the neighbours of the state chosen
+				if nextState not in visited_states:							#if not encoded
+					gray_list = graycode(assigned_states[state]) 			#find the list of all the encoding that differes in only one place from given state
+					
+					for st in gray_list:									#for each such gray code
+						if (st not in encoded_states):						#if not used early
 							encoded_states.append(st)
-							assigned_states[nextState] = st
+							assigned_states[nextState] = st                 #use it to encode
 							visited_states.append(nextState)
-							break
+							break                                           #Break out of the loop otherwise
 
-		return assigned_states
+		return assigned_states                                              #return final list of encodings
 
 
 
@@ -206,4 +202,4 @@ print_state_assignment(state_assignment_try)
 
 		
 #sequence would be of the form S1-> an array of states to show the connection in the finite state machine
-#thus a list of list of next states corresponding to the indices representing the states
+#thus a list of list of next states corresponding to the indices representing the state
