@@ -38,8 +38,8 @@ class state_sequencer:
 	def sequence_matrix(self): #Func to find the nextStateSequence, inputSequence and outputSequence
 		
 		for i in range(self.noStates):
-			for state in self.sequence[i]:
 
+			for state in self.sequence[i]: #if any state does not have a next state the loop is not iterated
 				self.nextStateSequence[i][state[0]]+=1
 				
 				for j in range(self.noOutputs):
@@ -163,13 +163,20 @@ def print_state_assignment(state_assignment):
 
 # each sequence has a list of states with a list of state class object corresponding to them
 
-#state_seq=[[[1,(0,0),(0,0)],[2,(1,0),(1,1)]],[[1,(1,0),(0,1)],[2,(0,1),(1,0)]],[[0,(1,1),(0,0)]]]
+#Example 1 in our report
+state_seq=[[[1,(0,0),(0,0)],[2,(1,0),(1,1)]],[[1,(1,0),(0,1)],[2,(0,1),(1,0)]],[[0,(1,1),(0,0)]]]
+state_seq1=state_sequencer(3,2,2,state_seq)
 
-#Example number-9 page 365 H.L. Somanji
-state_seq=[[[0,(0,0),(1,)],[0,(0,1),(1,)],[4,(1,1),(0,)],[1,(1,0),(1,)]],[[0,(0,0),(1,)],[3,(0,1),(0,)],[2,(1,1),(0,)],[2,(1,0),(0,)]],[[2,(0,0),(1,)],[3,(0,1),(0,)],[3,(1,1),(0,)],[3,(1,0),(0,)]],[[0,(0,0),(0,)],[4,(0,1),(0,)],[4,(1,1),(0,)],[0,(1,0),(0,)]],[[2,(0,0),(1,)],[4,(0,1),(0,)],[4,(1,1),(0,)],[0,(1,0),(0,)]]]
+#Example number-9 page 365 H.L. Somanji & Example 2 in our report
+#state_seq=[[[0,(0,0),(1,)],[0,(0,1),(1,)],[4,(1,1),(0,)],[1,(1,0),(1,)]],[[0,(0,0),(1,)],[3,(0,1),(0,)],[2,(1,1),(0,)],[2,(1,0),(0,)]],[[2,(0,0),(1,)],[3,(0,1),(0,)],[3,(1,1),(0,)],[3,(1,0),(0,)]],[[0,(0,0),(0,)],[4,(0,1),(0,)],[4,(1,1),(0,)],[0,(1,0),(0,)]],[[2,(0,0),(1,)],[4,(0,1),(0,)],[4,(1,1),(0,)],[0,(1,0),(0,)]]]
+#state_seq1=state_sequencer(5,2,1,state_seq)
+
+state_seq=[[1,(0,0,0),(0,0,0)],[2,(0,0,1),(0,1,1)],[4,(0,1,0),(1,0,1)]],[[0,(1,1,1),(1,1,1)],[4,(1,0,0),(0,1,1)],[5,(0,0,1),(1,0,1)],[8,(1,1,1),(0,0,1)]],[[5,(1,0,0),(0,1,0)],[10,(0,0,1),(0,0,1)]],[[6,(0,1,1),(1,0,1)]],[[1,(0,0,0),(0,0,0)],[3,(1,0,1),(1,1,0)],[5,(0,0,1),(1,0,0)],[9,(0,1,1),(1,1,1)],[9,(0,1,0),(1,1,0)]],[[2,(1,1,0),(0,0,0)],[7,(0,0,0),(1,0,0)],[10,(0,1,1),(0,0,0)]],[[8,(0,0,1),(1,1,0)],[9,(0,0,0),(1,1,1)]],[[11,(0,1,1),(1,1,1)]],[[11,(0,0,1),(1,0,0)]],[[4,(1,1,1),(1,1,1)]],[[5,(0,0,0),(0,0,1)],[11,(1,0,1),(0,1,0)]],[[6,(0,1,0),(0,1,1)],[10,(1,0,1),(1,1,1)]]
+state_seq1=state_sequencer(12,3,3,state_seq)
 
 # An instance of a state_sequencer class using the constructor defined above
-state_seq1=state_sequencer(5,2,1,state_seq)
+
+
 
 nextStateSequence_try,outputSequence_try,inputSequence_try =state_seq1.sequence_matrix()
 
@@ -195,7 +202,7 @@ print("\n")
 max_attraction_states_try,attraction_sort_try = state_seq1.max_attraction(attraction_matrix_fanout_try)
 
 print("STATES SORTED ACCORDING TO ATTRACTION OF N MOST ATTRACTED STATES")
-#print(max_attraction_states_try)
+print(max_attraction_states_try)
 print(attraction_sort_try)
 print("\n")
 
@@ -213,7 +220,7 @@ print("\n")
 
 max_attraction_states_try,attraction_sort_try = state_seq1.max_attraction(attraction_matrix_fanin_try)
 print("STATES SORTED ACCORDING TO ATTRACTION OF N MOST ATTRACTED STATES")
-#print(max_attraction_states_try)
+print(max_attraction_states_try)
 print(attraction_sort_try)
 print("\n")
 
